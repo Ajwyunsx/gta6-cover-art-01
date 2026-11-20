@@ -119,40 +119,37 @@ function gradePanel(ctx, panel, strength) {
   ctx.rect(x, y, w, h);
   ctx.clip();
 
-  // the sunset printed over the photo, in two moves. First a multiply pass that lays warm pigment
-  // into the colour: peach at the crown, hot rose through the middle, violet ink at the foot. That
-  // is what turns a midday snapshot into a dusk poster. Then a colour pass to pull any hues the
-  // multiply left behind onto the palette.
+  // the sunset printed over the photo. Overlay keeps the photo's own light and shade while pushing
+  // the hues toward the palette: warm at the crown, neutral through the faces, plum at the foot. The
+  // middle band is deliberately weak — that is where the subject lives and skin has to stay skin.
   const sky = ctx.createLinearGradient(x, y, x + w * 0.06, y + h);
-  sky.addColorStop(0, `rgba(255,196,128,${0.62 * strength})`);
-  sky.addColorStop(0.26, `rgba(255,150,120,${0.70 * strength})`);
-  sky.addColorStop(0.58, `rgba(198,92,168,${0.74 * strength})`);
-  sky.addColorStop(1, `rgba(72,34,140,${0.80 * strength})`);
-  ctx.globalCompositeOperation = 'multiply';
+  sky.addColorStop(0, `rgba(255,148,52,${0.80 * strength})`);
+  sky.addColorStop(0.22, `rgba(255,132,88,${0.52 * strength})`);
+  sky.addColorStop(0.46, `rgba(196,120,150,${0.26 * strength})`);
+  sky.addColorStop(0.74, `rgba(126,64,150,${0.44 * strength})`);
+  sky.addColorStop(1, `rgba(52,20,96,${0.72 * strength})`);
+  ctx.globalCompositeOperation = 'overlay';
   ctx.fillStyle = sky;
   ctx.fillRect(x, y, w, h);
 
-  const tint = ctx.createLinearGradient(x, y, x + w * 0.06, y + h);
-  tint.addColorStop(0, '#ff9a3c');
-  tint.addColorStop(0.34, '#ff6f8e');
-  tint.addColorStop(0.70, '#b04ac0');
-  tint.addColorStop(1, '#4a2488');
-  ctx.globalCompositeOperation = 'color';
-  ctx.globalAlpha = 0.34 * strength;
-  ctx.fillStyle = tint;
-  ctx.fillRect(x, y, w, h);
-  ctx.globalAlpha = 1;
-
   // the sun: a soft bloom high in the frame, the way low light bleeds into the emulsion
   const glow = ctx.createRadialGradient(
-    x + w * 0.56, y + h * 0.14, 0,
-    x + w * 0.56, y + h * 0.14, Math.max(w, h) * 0.66,
+    x + w * 0.54, y + h * 0.12, 0,
+    x + w * 0.54, y + h * 0.12, Math.max(w, h) * 0.62,
   );
-  glow.addColorStop(0, `rgba(255,196,110,${0.40 * strength})`);
-  glow.addColorStop(0.26, `rgba(255,124,96,${0.18 * strength})`);
+  glow.addColorStop(0, `rgba(255,186,104,${0.34 * strength})`);
+  glow.addColorStop(0.30, `rgba(255,120,92,${0.14 * strength})`);
   glow.addColorStop(1, 'rgba(24,0,36,0)');
   ctx.globalCompositeOperation = 'screen';
   ctx.fillStyle = glow;
+  ctx.fillRect(x, y, w, h);
+
+  // press the foot of the panel into plum ink so the panels read as one printed sheet
+  const foot = ctx.createLinearGradient(x, y + h * 0.46, x, y + h);
+  foot.addColorStop(0, 'rgba(26,6,48,0)');
+  foot.addColorStop(1, `rgba(22,4,44,${0.46 * strength})`);
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = foot;
   ctx.fillRect(x, y, w, h);
 
   // a narrow glare band across the panel, like light catching a glossy print

@@ -1,9 +1,11 @@
 // Fixed scenes for screenshots, chosen by `?shot=`:
 //   ?shot=cover   the sheet alone, filling the window (the app's own exported art)
-//   ?shot=editor  the whole studio with one or two photos loaded
-// `photo` names a file under samples/ (no extension), `photos` a comma-separated list,
-// `caption`, `kicker`, `credit`, `layout` and `size` set the scene. The app sets
-// window.__shotReady once the sheet is painted, so a headless capture can wait on it.
+//   ?shot=editor  the whole studio, with photos already loaded and the rail in sync
+//   ?shot=raw     the sheet alone at its native size, no window fitting (used for export tests)
+//
+// `photos` is a comma-separated list of names under samples/ (no extension), and `caption`,
+// `kicker`, `credit`, `layout`, `size`, `grade` set the scene. Once the sheet is painted the app
+// sets window.__shotReady, so a headless capture can wait for it instead of guessing.
 
 const SAMPLES = {
   pier: 'samples/pier.jpg',
@@ -12,8 +14,27 @@ const SAMPLES = {
 
 function samplePath(name) {
   const key = String(name || '').trim();
-  if (SAMPLES[key]) return SAMPLES[key];
-  return `samples/${key}.jpg`;
+  return SAMPLES[key] ?? `samples/${key}.jpg`;
+}
+
+/** Puts the rail back in sync with a scene the query params just overwrote. */
+function syncControls(state, app) {
+  const set = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+  };
+  set('caption', state.caption);
+  set('kicker', state.kicker);
+  set('credit', state.credit);
+  set('zoom', state.slots[state.selected]?.zoom ?? 1);
+
+  document.querySelectorAll('.layout').forEach((card) => {
+    card.classList.toggle('active', card.dataset.id === state.layoutId);
+  });
+  document.querySelectorAll('.size').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.id === state.sizeId);
+  });
+  app.syncThumbs?.();
 }
 
 export async function runShot(shot, query, app) {
@@ -41,15 +62,20 @@ export async function runShot(shot, query, app) {
     state.slots.forEach((s, i) => { s.photoIndex = i % state.photos.length; });
   }
 
-  if (shot === 'cover') {
+  if (shot === 'cover' || shot === 'raw') {
     document.body.classList.add('shot-cover');
-    document.getElementById('caption').value = state.caption;
-    document.getElementById('kicker').value = state.kicker;
-    document.getElementById('credit').value = state.credit;
+  }
+  if (shot === 'editor') {
+    document.body.classList.add('shot-editor');
   }
 
   render();
+  syncControls(state, app);
+
   // two frames: one for layout, one for the canvas paint to land
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  if (document.fonts?.ready) await document.fonts.ready;
+  render();
+  await new Promise((r) => requestAnimationFrame(r));
   window.__shotReady = true;
 }

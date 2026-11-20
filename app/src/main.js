@@ -476,6 +476,7 @@ if (shot) {
     state,
     render,
     syncSlots,
+    syncThumbs,
     takePhoto: async (url, name) => {
       const img = await loadImage(url);
       return addPhoto(img, name || url.split('/').pop(), url);
