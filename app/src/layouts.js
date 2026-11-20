@@ -31,9 +31,9 @@ export const LAYOUTS = [
     name: 'Hero + Two',
     hint: 'One big portrait panel, two stacked beside it.',
     panels: () => [
-      PANEL(0, 0, 0.585, 1, 0.46, 0.40, 1.04),
-      PANEL(0.585, 0, 0.415, 0.5, 0.52, 0.36, 1.18),
-      PANEL(0.585, 0.5, 0.415, 0.5, 0.48, 0.46, 1.18),
+      PANEL(0, 0, 0.585, 1, 0.46, 0.30, 1.04),
+      PANEL(0.585, 0, 0.415, 0.5, 0.52, 0.30, 1.18),
+      PANEL(0.585, 0.5, 0.415, 0.5, 0.48, 0.42, 1.18),
     ],
   },
   {

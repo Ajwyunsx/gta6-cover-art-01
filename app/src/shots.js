@@ -72,6 +72,16 @@ export async function runShot(shot, query, app) {
   render();
   syncControls(state, app);
 
+  // a self-check mode: paint, then measure a real PNG encode of the sheet and put the numbers in
+  // the document title, so a headless run can prove the export path works end to end
+  if (shot === 'export') {
+    const canvas = document.getElementById('preview');
+    const bytes = await new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob ? blob.size : 0), 'image/png');
+    });
+    document.title = `export ${canvas.width}x${canvas.height} ${bytes}`;
+  }
+
   // two frames: one for layout, one for the canvas paint to land
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   if (document.fonts?.ready) await document.fonts.ready;

@@ -90,7 +90,7 @@ function drawPanelPhoto(ctx, panel, slot, photo) {
     const fy = slot?.focusY ?? 0.42;
     const dx = x - slackX * fx;
     const dy = y - slackY * fy;
-    ctx.filter = 'saturate(1.5) contrast(1.12) brightness(0.99)';
+    ctx.filter = 'saturate(1.62) contrast(1.22) brightness(0.97)';
     ctx.drawImage(photo, dx, dy, dw, dh);
     ctx.filter = 'none';
 
@@ -196,18 +196,52 @@ function roundRect(ctx, x, y, w, h, r) {
 
 /** The little print stamp in the top corners: volume and sheet size, in tracked caps. */
 function drawStamps(ctx, o, W, H, unit) {
-  const pad = unit * 0.028;
+  const pad = unit * 0.046;
+  const top = unit * 0.058;
   const size = Math.max(8, unit * 0.0155);
-  drawKicker(ctx, o.stampLeft || 'VICE EDITION', pad, pad + size, size, 'rgba(255,226,190,0.86)', 'left', 0.28);
-  drawKicker(ctx, o.stampRight || 'No. 06', W - pad, pad + size, size, 'rgba(255,226,190,0.86)', 'right', 0.28);
+  const ink = 'rgba(255,236,214,0.92)';
+  drawKicker(ctx, o.stampLeft || 'VICE EDITION', pad, top + size, size, ink, 'left', 0.28);
+  drawKicker(ctx, o.stampRight || 'No. 06', W - pad, top + size, size, ink, 'right', 0.28);
   ctx.save();
-  ctx.strokeStyle = 'rgba(255,226,190,0.34)';
+  ctx.strokeStyle = 'rgba(255,236,214,0.42)';
   ctx.lineWidth = Math.max(1, unit * 0.0012);
   ctx.beginPath();
-  ctx.moveTo(pad, pad + size * 1.9);
-  ctx.lineTo(pad + unit * 0.10, pad + size * 1.9);
-  ctx.moveTo(W - pad - unit * 0.10, pad + size * 1.9);
-  ctx.lineTo(W - pad, pad + size * 1.9);
+  ctx.moveTo(pad, top + size * 1.9);
+  ctx.lineTo(pad + unit * 0.10, top + size * 1.9);
+  ctx.moveTo(W - pad - unit * 0.10, top + size * 1.9);
+  ctx.lineTo(W - pad, top + size * 1.9);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/**
+ * A printed keyline frame inset from the trim, with a tick at each corner. It is the oldest poster
+ * device there is, and it is what stops the collage from looking like four photos on a page.
+ */
+function drawFrame(ctx, W, H, unit) {
+  const inset = unit * 0.026;
+  const hair = Math.max(1, unit * 0.0022);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,238,218,0.30)';
+  ctx.lineWidth = hair;
+  ctx.strokeRect(inset, inset, W - inset * 2, H - inset * 2);
+
+  ctx.strokeStyle = 'rgba(255,238,218,0.72)';
+  ctx.lineWidth = Math.max(1, hair * 1.6);
+  const tick = unit * 0.030;
+  const corner = inset + unit * 0.010;
+  const marks = [
+    [corner, corner, 1, 1],
+    [W - corner, corner, -1, 1],
+    [corner, H - corner, 1, -1],
+    [W - corner, H - corner, -1, -1],
+  ];
+  ctx.beginPath();
+  marks.forEach(([cx, cy, sx, sy]) => {
+    ctx.moveTo(cx + tick * sx, cy);
+    ctx.lineTo(cx, cy);
+    ctx.lineTo(cx, cy + tick * sy);
+  });
   ctx.stroke();
   ctx.restore();
 }
@@ -236,8 +270,17 @@ export function renderCover(ctx, o) {
   });
 
   drawGutters(ctx, panels, o.gutter ?? 1, unit);
-  drawStamps(ctx, o, W, H, unit);
 
+  // a soft scrim across the crown of the sheet: the stamps sit up there, and a bright sky would
+  // otherwise swallow them
+  const crown = ctx.createLinearGradient(0, 0, 0, unit * 0.13);
+  crown.addColorStop(0, 'rgba(12,2,18,0.52)');
+  crown.addColorStop(0.55, 'rgba(12,2,18,0.16)');
+  crown.addColorStop(1, 'rgba(12,2,18,0)');
+  ctx.fillStyle = crown;
+  ctx.fillRect(0, 0, W, unit * 0.13);
+
+  drawStamps(ctx, o, W, H, unit);
   if (o.showBand !== false) {
     const bandH = o.bandH;
     const bandY = H - bandH;
@@ -278,12 +321,12 @@ export function renderCover(ctx, o) {
 
     // caption, then a credit line beneath it
     const sidePad = unit * 0.055;
-    const creditH = unit * 0.044;
+    const footPad = unit * 0.064;
     const capBox = {
       x: sidePad,
-      y: bandY + unit * 0.020,
+      y: bandY + unit * 0.014,
       w: W - sidePad * 2,
-      h: bandH - unit * 0.020 - creditH,
+      h: bandH - unit * 0.014 - footPad,
     };
     drawCaption(ctx, o.caption, capBox, {
       rim: o.rim ?? '#ffb52e',
@@ -298,7 +341,7 @@ export function renderCover(ctx, o) {
 
     const credits = [o.kicker || '', o.credit || ''].filter(Boolean).join('   ·   ');
     if (credits) {
-      drawKicker(ctx, credits, W / 2, H - creditH * 0.62, Math.max(7, unit * 0.0145), 'rgba(255,222,196,0.78)', 'center', 0.24);
+      drawKicker(ctx, credits, W / 2, H - unit * 0.034, Math.max(7, unit * 0.0145), 'rgba(255,222,196,0.78)', 'center', 0.24);
     }
   }
 
@@ -319,6 +362,7 @@ export function renderCover(ctx, o) {
   ctx.fillStyle = vig;
   ctx.fillRect(0, 0, W, H);
 
+  drawFrame(ctx, W, H, unit);
   ctx.restore();
 }
 

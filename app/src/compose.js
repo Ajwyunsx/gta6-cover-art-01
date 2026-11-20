@@ -17,9 +17,9 @@ export { SIZES };
 /** Band height as a share of the sheet: a wide sheet gets a slightly deeper slab. */
 function bandShare(W, H) {
   const ratio = W / H;
-  if (ratio > 1.35) return 0.30;
-  if (ratio < 0.9) return 0.245;
-  return 0.275;
+  if (ratio > 1.35) return 0.315;
+  if (ratio < 0.9) return 0.225;
+  return 0.250;
 }
 
 /**
