@@ -126,6 +126,20 @@ function render() {
 /** Draws the selection hairline and the panel numbers on the overlay canvas. */
 function drawHandles() {
   octx.clearRect(0, 0, overlay.width, overlay.height);
+  if (!state.photos.length) {
+    // the empty sheet is beautiful but mute: say what to do with it
+    const unit = geo.unit;
+    octx.save();
+    octx.textAlign = 'center';
+    octx.fillStyle = 'rgba(255,226,206,0.42)';
+    octx.font = `600 ${Math.round(unit * 0.024)}px "Inter", system-ui, sans-serif`;
+    octx.fillText('Add a photo to start', geo.W / 2, geo.bandY * 0.5);
+    octx.fillStyle = 'rgba(255,226,206,0.24)';
+    octx.font = `500 ${Math.round(unit * 0.016)}px "Inter", system-ui, sans-serif`;
+    octx.fillText('one photo is enough — each panel gets its own crop', geo.W / 2, geo.bandY * 0.5 + unit * 0.042);
+    octx.restore();
+    return;
+  }
   const unit = geo.unit;
   geo.panels.forEach((p, i) => {
     const slot = state.slots[i];
