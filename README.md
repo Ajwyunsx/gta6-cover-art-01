@@ -26,7 +26,7 @@ the sheet alone, full-window. `?shot=editor` paints the studio with the rail in 
 
 ## How the collage is built
 
-Four layouts, all authored in a unit square so the same table drives every output size:
+Five layouts, all authored in a unit square so the same table drives every output size:
 
 | Layout | Panels |
 | --- | --- |
@@ -34,6 +34,7 @@ Four layouts, all authored in a unit square so the same table drives every outpu
 | Four Strips | four narrow panels, the gig-poster look |
 | Hero + Two | one big portrait panel, two stacked beside it |
 | Five Grid | two across the top, three below |
+| Band + Three | a wide establishing band over three uprights |
 
 Every panel holds a *slot*: which photo, a focus point inside the photo's slack, and a zoom. The
 zoom is a multiplier on the cover-fit scale, so a photo never leaves a gap at the edges no matter
@@ -64,7 +65,7 @@ foot. An oblique shear of −3.4° and a `/` in the caption forces a line break.
 app/
   index.html        the studio: tray, layout cards, words, size, export
   style.css         dark plum UI, no framework
-  src/layouts.js    the four panel tables
+  src/layouts.js    the five panel tables
   src/compose.js    sheet geometry: panel rects, band share, hit testing
   src/render.js     panel painting, the grade, gutters, stamps, the headline band
   src/lettering.js  caption planning and the five-pass paint stack

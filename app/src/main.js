@@ -37,16 +37,33 @@ function template() {
   return getLayout(state.layoutId);
 }
 
+/**
+ * When a sheet has one photo, every panel would show the same crop and the collage would read as a
+ * printer error. Solo spread nudges each panel across and in, so the strips become a sequence of
+ * framings of the one frame — the way a poster repeats a face at different magnifications.
+ */
+function soloSpread(panel, index, count) {
+  if (count < 3) return null;
+  const t = count === 1 ? 0 : index / (count - 1); // 0..1 across the sheet
+  return {
+    focusX: 0.36 + t * 0.32,
+    focusY: panel.focusY,
+    zoom: panel.zoom * (0.94 + Math.sin(t * Math.PI) * 0.20),
+  };
+}
+
 /** Rebuilds the slot table for the current layout, keeping earlier crops where panels overlap. */
 function syncSlots() {
   const panels = template().panels();
+  const solo = state.photos.length === 1;
   const next = panels.map((p, i) => {
     const prev = state.slots[i];
+    const spread = solo ? soloSpread(p, i, panels.length) : null;
     return {
       photoIndex: prev?.photoIndex ?? i % Math.max(1, state.photos.length),
-      focusX: prev?.focusX ?? p.focusX,
+      focusX: prev?.focusX ?? spread?.focusX ?? p.focusX,
       focusY: prev?.focusY ?? p.focusY,
-      zoom: prev?.zoom ?? p.zoom,
+      zoom: prev?.zoom ?? spread?.zoom ?? p.zoom,
     };
   });
   state.slots = next;

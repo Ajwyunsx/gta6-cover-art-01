@@ -189,3 +189,15 @@ export function drawKicker(ctx, text, x, y, size, color, alignment = 'center', t
   ctx.restore();
   return width;
 }
+
+/** The width drawKicker will paint, without painting it — used to size the stamp chips. */
+export function measureKicker(ctx, text, size, tracking = 0.3) {
+  const raw = String(text ?? '').toUpperCase();
+  if (!raw.trim()) return 0;
+  ctx.save();
+  ctx.font = `700 ${Math.max(6, size)}px ${FACE}`;
+  ctx.letterSpacing = `${(size * tracking).toFixed(2)}px`;
+  const width = ctx.measureText(raw).width;
+  ctx.restore();
+  return width;
+}

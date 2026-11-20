@@ -12,7 +12,7 @@
 //   5. the headline band, its rule, the caption lettering and the credit line
 //   6. grain and a vignette over the whole sheet, which binds the panels into one print
 
-import { drawCaption, drawKicker } from './lettering.js';
+import { drawCaption, drawKicker, measureKicker } from './lettering.js';
 
 const INK = '#160818';
 const BAND_TOP = '#2a0b23';
@@ -65,6 +65,28 @@ export function panelSlack(panel, photo, zoom) {
 }
 
 /**
+ * Where the crop window sits vertically.
+ *
+ * A square portrait cropped into a 16:9 panel loses most of its height, and a flat 0.42 focus
+ * then drops the window to the chest — the head comes off. When a panel throws away a big share
+ * of the frame, slide the window down from the top of the photo, far enough to hold the face band
+ * (roughly the crown third, where a portrait's eyes sit). Tall panels that keep the figure, and
+ * gentle crops, are left exactly where the layout or the user's drag put them.
+ */
+function cropFocusY(panel, slackY, requested) {
+  const slack = Math.max(0, slackY);
+  const total = slack + panel.h;
+  if (total <= 0 || slack <= 0) return requested;
+  const cropped = slack / total;          // share of the photo the crop throws away
+  const weight = Math.min(1, Math.max(0, (cropped - 0.15) / 0.30));
+  if (weight <= 0) return requested;
+  const faceBand = 0.27;                  // where eyes+chin sit, as a share of the photo height
+  const windowShare = panel.h / total;    // how much of the photo the panel keeps
+  const safe = Math.max(0, Math.min(1, (faceBand - windowShare / 2) / Math.max(0.001, 1 - windowShare)));
+  return Math.max(0, Math.min(1, requested - weight * Math.max(0, requested - safe)));
+}
+
+/**
  * Draws one photo into a panel rectangle, cover-fit, with the panel's pan and zoom applied.
  * focus/focusY: 0..1 within the slack, zoom: 1..3 multiplier on the cover scale.
  */
@@ -87,7 +109,7 @@ function drawPanelPhoto(ctx, panel, slot, photo) {
     const slackX = Math.max(0, dw - w);
     const slackY = Math.max(0, dh - h);
     const fx = slot?.focusX ?? 0.5;
-    const fy = slot?.focusY ?? 0.42;
+    const fy = cropFocusY(panel, slackY, slot?.focusY ?? 0.42);
     const dx = x - slackX * fx;
     const dy = y - slackY * fy;
     ctx.filter = 'saturate(1.62) contrast(1.22) brightness(0.97)';
@@ -194,14 +216,44 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-/** The little print stamp in the top corners: volume and sheet size, in tracked caps. */
+/**
+ * The little print stamp in the top corners: volume and sheet size, in tracked caps. Each stamp
+ * rides on its own ink chip — over a bright sky the caps alone vanished, so the chip carries a
+ * dark plum fill with a hairline rim and the sun-warmed scrim above it, and the text stays legible
+ * on any photo underneath.
+ */
 function drawStamps(ctx, o, W, H, unit) {
   const pad = unit * 0.046;
   const top = unit * 0.058;
   const size = Math.max(8, unit * 0.0155);
   const ink = 'rgba(255,236,214,0.92)';
-  drawKicker(ctx, o.stampLeft || 'VICE EDITION', pad, top + size, size, ink, 'left', 0.28);
-  drawKicker(ctx, o.stampRight || 'No. 06', W - pad, top + size, size, ink, 'right', 0.28);
+  const track = 0.28;
+  const left = o.stampLeft || 'VICE EDITION';
+  const right = o.stampRight || 'No. 06';
+
+  const chipH = size * 1.72;
+  const chipPadX = size * 0.62;
+  const drawChipBack = (text, align) => {
+    const w = measureKicker(ctx, text, size, track) + chipPadX * 2;
+    const x = align === 'left' ? pad - chipPadX : W - pad - w + chipPadX;
+    const y = top + size - chipH / 2;
+    ctx.save();
+    roundRect(ctx, x, y, w, chipH, chipH * 0.28);
+    const fill = ctx.createLinearGradient(0, y, 0, y + chipH);
+    fill.addColorStop(0, 'rgba(22,6,24,0.72)');
+    fill.addColorStop(1, 'rgba(10,2,14,0.86)');
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,228,200,0.22)';
+    ctx.lineWidth = Math.max(1, unit * 0.0011);
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  drawChipBack(left, 'left');
+  drawChipBack(right, 'right');
+  drawKicker(ctx, left, pad, top + size, size, ink, 'left', track);
+  drawKicker(ctx, right, W - pad, top + size, size, ink, 'right', track);
   ctx.save();
   ctx.strokeStyle = 'rgba(255,236,214,0.42)';
   ctx.lineWidth = Math.max(1, unit * 0.0012);

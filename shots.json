@@ -1,5 +1,5 @@
 [
-  { "name": "1-cover.jpg", "query": "?shot=cover&photos=pier,boulevard&caption=VICE%20NIGHTS&kicker=A%20city%20that%20never%20sleeps&credit=Shot%20on%2035mm&layout=hero3&size=wide&grade=1.25", "w": 1280, "h": 720 },
-  { "name": "2-editor.jpg", "query": "?shot=editor&photos=pier,boulevard&caption=VICE%20NIGHTS&kicker=A%20city%20that%20never%20sleeps&credit=Shot%20on%2035mm&layout=strips3&size=square&grade=1.25", "w": 1280, "h": 800 },
-  { "name": "3-cover.jpg", "query": "?shot=cover&photos=boulevard&caption=NEON%20COAST&kicker=Out%20past%20the%20pier&credit=35mm%20%C2%B7%20ISO%20400&layout=strips4&size=portrait&grade=1.3", "w": 1024, "h": 1280 }
+  { "name": "1-cover.jpg", "query": "?shot=cover&photos=boulevard,pier&caption=VICE%20NIGHTS&kicker=A%20city%20that%20never%20sleeps&credit=Shot%20on%2035mm&layout=strips3&size=wide&grade=1.25", "w": 1280, "h": 720 },
+  { "name": "2-editor.jpg", "query": "?shot=editor&photos=boulevard,pier&caption=VICE%20NIGHTS&kicker=A%20city%20that%20never%20sleeps&credit=Shot%20on%2035mm&layout=strips3&size=square&grade=1.25", "w": 1280, "h": 982 },
+  { "name": "3-cover.jpg", "query": "?shot=cover&photos=boulevard,pier&caption=NEON%20COAST&kicker=Out%20past%20the%20pier&credit=35mm%20%C2%B7%20ISO%20400&layout=grid5&size=portrait&grade=1.3", "w": 1024, "h": 1280 }
 ]
