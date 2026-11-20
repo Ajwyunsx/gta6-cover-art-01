@@ -80,7 +80,7 @@ function cropFocusY(panel, slackY, requested) {
   const cropped = slack / total;          // share of the photo the crop throws away
   const weight = Math.min(1, Math.max(0, (cropped - 0.15) / 0.30));
   if (weight <= 0) return requested;
-  const faceBand = 0.27;                  // where eyes+chin sit, as a share of the photo height
+  const faceBand = 0.25;                  // where the face sits, as a share of the photo height
   const windowShare = panel.h / total;    // how much of the photo the panel keeps
   const safe = Math.max(0, Math.min(1, (faceBand - windowShare / 2) / Math.max(0.001, 1 - windowShare)));
   return Math.max(0, Math.min(1, requested - weight * Math.max(0, requested - safe)));
