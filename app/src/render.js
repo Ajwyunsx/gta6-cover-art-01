@@ -119,48 +119,37 @@ function gradePanel(ctx, panel, strength) {
   ctx.rect(x, y, w, h);
   ctx.clip();
 
-  // the sunset printed over the photo: a hot orange sky, magenta through the middle, deep plum at
-  // the foot. Overlay keeps the photo's own light and shadow while pushing every hue towards the
-  // poster's palette, so skin stays alive and the water keeps its teal.
-  const hue = ctx.createLinearGradient(x, y, x + w * 0.10, y + h);
-  hue.addColorStop(0, `rgba(255,128,44,${0.62 * strength})`);
-  hue.addColorStop(0.34, `rgba(255,96,120,${0.44 * strength})`);
-  hue.addColorStop(0.68, `rgba(150,52,160,${0.46 * strength})`);
-  hue.addColorStop(1, `rgba(52,20,110,${0.60 * strength})`);
-  ctx.globalCompositeOperation = 'overlay';
-  ctx.fillStyle = hue;
+  // the sunset printed over the photo, in two moves. First a multiply pass that lays warm pigment
+  // into the colour: peach at the crown, hot rose through the middle, violet ink at the foot. That
+  // is what turns a midday snapshot into a dusk poster. Then a colour pass to pull any hues the
+  // multiply left behind onto the palette.
+  const sky = ctx.createLinearGradient(x, y, x + w * 0.06, y + h);
+  sky.addColorStop(0, `rgba(255,196,128,${0.62 * strength})`);
+  sky.addColorStop(0.26, `rgba(255,150,120,${0.70 * strength})`);
+  sky.addColorStop(0.58, `rgba(198,92,168,${0.74 * strength})`);
+  sky.addColorStop(1, `rgba(72,34,140,${0.80 * strength})`);
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = sky;
   ctx.fillRect(x, y, w, h);
 
-  // and a second, lighter pass in colour mode to unify the hues without moving the tones
+  const tint = ctx.createLinearGradient(x, y, x + w * 0.06, y + h);
+  tint.addColorStop(0, '#ff9a3c');
+  tint.addColorStop(0.34, '#ff6f8e');
+  tint.addColorStop(0.70, '#b04ac0');
+  tint.addColorStop(1, '#4a2488');
   ctx.globalCompositeOperation = 'color';
-  ctx.globalAlpha = 0.22 * strength;
-  ctx.fillStyle = hue;
+  ctx.globalAlpha = 0.34 * strength;
+  ctx.fillStyle = tint;
   ctx.fillRect(x, y, w, h);
   ctx.globalAlpha = 1;
 
-  const lift = ctx.createLinearGradient(x, y, x, y + h);
-  lift.addColorStop(0, `rgba(255,168,96,${0.22 * strength})`);
-  lift.addColorStop(0.42, 'rgba(255,120,130,0)');
-  lift.addColorStop(1, `rgba(40,16,96,${0.34 * strength})`);
-  ctx.globalCompositeOperation = 'soft-light';
-  ctx.fillStyle = lift;
-  ctx.fillRect(x, y, w, h);
-
-  // split-tone: teal lifted into the shadows, so the warm sky has something cold to sit against
-  const cool = ctx.createLinearGradient(x, y + h * 0.46, x, y + h);
-  cool.addColorStop(0, 'rgba(40,180,200,0)');
-  cool.addColorStop(1, `rgba(34,168,196,${0.20 * strength})`);
-  ctx.globalCompositeOperation = 'screen';
-  ctx.fillStyle = cool;
-  ctx.fillRect(x, y, w, h);
-
-  // the sun: a soft bloom high in the frame
+  // the sun: a soft bloom high in the frame, the way low light bleeds into the emulsion
   const glow = ctx.createRadialGradient(
-    x + w * 0.58, y + h * 0.16, 0,
-    x + w * 0.58, y + h * 0.16, Math.max(w, h) * 0.70,
+    x + w * 0.56, y + h * 0.14, 0,
+    x + w * 0.56, y + h * 0.14, Math.max(w, h) * 0.66,
   );
-  glow.addColorStop(0, `rgba(255,206,132,${0.34 * strength})`);
-  glow.addColorStop(0.30, `rgba(255,120,110,${0.16 * strength})`);
+  glow.addColorStop(0, `rgba(255,196,110,${0.40 * strength})`);
+  glow.addColorStop(0.26, `rgba(255,124,96,${0.18 * strength})`);
   glow.addColorStop(1, 'rgba(24,0,36,0)');
   ctx.globalCompositeOperation = 'screen';
   ctx.fillStyle = glow;
@@ -300,12 +289,13 @@ export function renderCover(ctx, o) {
       h: bandH - unit * 0.020 - creditH,
     };
     drawCaption(ctx, o.caption, capBox, {
-      rim: o.rim ?? '#ff3f74',
-      key: o.key ?? '#14030f',
-      fillA: o.fillA ?? '#fff8e2',
-      fillB: o.fillB ?? '#ffb43c',
-      condense: 0.80,
-      skew: -0.06,
+      rim: o.rim ?? '#ffb52e',
+      key: o.key ?? '#1b0510',
+      fillA: o.fillA ?? '#fffaf0',
+      fillB: o.fillB ?? '#ffc247',
+      fillC: o.fillC ?? '#ff8a1e',
+      condense: 0.93,
+      skew: -0.05,
       lead: 0.02,
     });
 

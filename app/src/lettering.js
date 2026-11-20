@@ -92,14 +92,14 @@ function paintLine(ctx, line, size, look) {
   ctx.fillText(line, 0, 0);
   ctx.restore();
 
-  // 2. the colour rim, wider than the keyline so a halo survives all round
+  // 2. the colour rim: a thin halo, just wide enough to read the letters off any background
   ctx.strokeStyle = look.rim;
-  ctx.lineWidth = Math.max(2, size * 0.235);
+  ctx.lineWidth = Math.max(1.5, size * 0.135);
   ctx.strokeText(line, 0, 0);
 
   // 3. the dark keyline that separates the letters from whatever sits behind them
   ctx.strokeStyle = look.key;
-  ctx.lineWidth = Math.max(1.5, size * 0.095);
+  ctx.lineWidth = Math.max(1.2, size * 0.085);
   ctx.strokeText(line, 0, 0);
 
   // 4. the fill: pale at the crown, hot at the foot
@@ -132,10 +132,11 @@ function paintLine(ctx, line, size, look) {
  */
 export function drawCaption(ctx, text, box, look = {}) {
   const opts = {
-    rim: '#ff4d7e',
-    key: '#170410',
-    fillA: '#fff8e6',
-    fillB: '#ffae2e',
+    rim: '#ffb52e',
+    key: '#1b0510',
+    fillA: '#fffaf0',
+    fillB: '#ffc247',
+    fillC: '#ff8a1e',
     condense: 0.94,
     skew: -0.06,
     lead: 0.02,

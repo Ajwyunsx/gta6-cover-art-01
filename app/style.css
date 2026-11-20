@@ -375,6 +375,8 @@ button.ghost:hover { background: #2b1c36; border-color: #59416b; }
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   padding: 14px 22px 20px;
   gap: 10px;
 }
@@ -401,6 +403,8 @@ button.ghost:hover { background: #2b1c36; border-color: #59416b; }
   display: grid;
   place-items: center;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
   padding: 16px;
   border-radius: 16px;
   background:
@@ -412,8 +416,6 @@ button.ghost:hover { background: #2b1c36; border-color: #59416b; }
 canvas#preview, canvas#overlay {
   grid-area: 1 / 1;
   display: block;
-  max-width: 100%;
-  max-height: 100%;
   box-shadow: 0 24px 60px rgba(0,0,0,.62), 0 0 0 1px rgba(255,190,140,.10);
   border-radius: 3px;
 }
@@ -475,8 +477,8 @@ body.shot-cover .frame {
 body.shot-cover canvas#preview {
   box-shadow: none;
   border-radius: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100vw !important;
+  height: 100vh !important;
   object-fit: contain;
 }
 body.shot-cover canvas#overlay { display: none; }

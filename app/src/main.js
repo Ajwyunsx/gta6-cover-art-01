@@ -58,6 +58,32 @@ function geometry() {
   return compose(template(), size.w, size.h);
 }
 
+/** Sizes the two canvases on screen: the sheet keeps its aspect and fits the frame's box. */
+function fitToFrame() {
+  if (document.body.classList.contains('shot-cover')) {
+    preview.style.width = '';
+    preview.style.height = '';
+    overlay.style.width = '';
+    overlay.style.height = '';
+    return;
+  }
+  const frame = document.getElementById('frame');
+  const pad = 40;
+  const availW = Math.max(160, frame.clientWidth - pad);
+  const availH = Math.max(160, frame.clientHeight - pad);
+  const aspect = preview.width / preview.height;
+  let w = availW;
+  let h = w / aspect;
+  if (h > availH) {
+    h = availH;
+    w = h * aspect;
+  }
+  preview.style.width = `${Math.round(w)}px`;
+  preview.style.height = `${Math.round(h)}px`;
+  overlay.style.width = `${Math.round(w)}px`;
+  overlay.style.height = `${Math.round(h)}px`;
+}
+
 let geo = geometry();
 
 function render() {
@@ -80,10 +106,11 @@ function render() {
     credit: state.credit,
     grade: state.grade,
     grain: state.grain,
-    stampLeft: `${template().name}`,
-    stampRight: `${size.w} × ${size.h}`,
+    stampLeft: 'SUNSET EDITION',
+    stampRight: 'VOL. 06',
   });
   drawHandles();
+  fitToFrame();
   document.getElementById('layoutLabel').textContent = template().name;
   document.getElementById('sizeLabel').textContent = `${size.w} × ${size.h}`;
   document.getElementById('panelLabel').textContent =
@@ -113,7 +140,7 @@ function drawHandles() {
     const label = String(i + 1);
     const r = Math.max(11, unit * 0.0175);
     const cx = p.x + r + unit * 0.012;
-    const cy = p.y + r + unit * 0.012;
+    const cy = p.y + p.h - r - unit * 0.012;
     octx.beginPath();
     octx.arc(cx, cy, r, 0, Math.PI * 2);
     octx.fillStyle = active ? 'rgba(255,194,71,0.96)' : 'rgba(12,5,16,0.62)';
@@ -130,7 +157,7 @@ function drawHandles() {
       octx.font = `600 ${r * 0.78}px "Inter", system-ui, sans-serif`;
       octx.textAlign = 'left';
       octx.fillStyle = 'rgba(255,236,218,0.55)';
-      octx.fillText(`photo ${slot.photoIndex + 1}`, cx + r * 1.35, cy + r * 0.04);
+      octx.fillText(`photo ${slot.photoIndex + 1}`, cx + r * 1.4, cy + r * 0.04);
     }
     octx.restore();
   });
@@ -434,6 +461,8 @@ function exportPng() {
 document.getElementById('export').addEventListener('click', exportPng);
 
 /* ── boot ─────────────────────────────────────────────────────────── */
+
+window.addEventListener('resize', fitToFrame);
 
 buildLayoutCards();
 buildSizeCards();
